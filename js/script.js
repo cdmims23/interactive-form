@@ -9,6 +9,7 @@
  const colorSelect = document.querySelector("#color");
  const colorOptions = colorSelect.children;
  const activitiesFieldSet = document.querySelector(".activities");
+ const activitiesFirstElementChild = activitiesFieldSet.firstElementChild;
  const paymentFieldSet = document.querySelector("#payment-section");
  const paymentSelect = document.querySelector("#payment");
  const creditCardDiv = document.querySelector("#credit-card");
@@ -16,10 +17,30 @@
  const bitCoinDiv = document.querySelector("#bitcoin");
  const totalSpan = document.createElement("span");
  activitiesFieldSet.appendChild(totalSpan);
-
-
+ const nameInput = document.querySelector("#name");
+ const emailInput = document.querySelector("#mail");
+ const creditCardInput = document.querySelector("#cc-num");
+ const zipCodeInput = document.querySelector("#zip");
+ const cvvInput = document.querySelector("#cvv");
+ const submitButton = document.querySelector("button[type='submit']");
+ const form = document.querySelector("form");
  let totalOfActvities = 0;
 
+ /**
+  * Dynamically created spans for error messages
+  */
+  function appendErrorMessage(currentInput, newElement) {
+    const parent = currentInput.parentElement;
+    parent.insertBefore(newElement, currentInput);
+  }
+
+  function createErrorMessage(currentInput, element) {
+    const errorElement = document.createElement(element);
+    errorElement.id = `error-${currentInput.id}`;
+    errorElement.style.color = "red";
+    appendErrorMessage(currentInput, errorElement)
+  }
+  
  /**
   * Default form set up
   **/
@@ -30,13 +51,61 @@
   bitCoinDiv.style.display = "none";
   paymentSelect.options[1].selected = true;
 
+  createErrorMessage(nameInput, 'span');
+  createErrorMessage(emailInput, 'span');
+  createErrorMessage(activitiesFirstElementChild, 'span');
+  createErrorMessage(creditCardInput, 'span');
+  createErrorMessage(zipCodeInput, 'span');
+  createErrorMessage(cvvInput, 'span');
+
  /**
  * Validation functions
  **/
 
-  /** 
-   * Form behavior and events
-  **/
+ function activitiesIsValid(activities) {
+     let checked = false;
+
+     for(let i = 0; i < activities.length; i++) {
+         if(activities[i].checked) {
+             checked = true;
+         }
+     }
+     return checked;
+ }
+
+function inputValidation(regEx, input) {
+    return regEx.test(input);
+}
+
+// Email validation event listener
+emailInput.addEventListener("input", (e) => {
+    const validEmail = inputValidation(/^[^@]+@[^@.]+\.[a-z]+$/i, emailInput.value);
+    if(!validEmail) {
+        if(emailInput.value === '') {
+            emailInput.previousElementSibling.textContent = `Email cannot be empty`;
+            emailInput.classList.add("error");
+        } else {
+            emailInput.previousElementSibling.textContent = `${emailInput.value || ''} Not a valid email address`;
+            emailInput.classList.add("error");
+        }
+    } else {
+        emailInput.previousElementSibling.textContent = ``;
+        emailInput.classList.remove("error");
+    }
+});
+
+emailInput.addEventListener("blur", (e) => {
+    const validEmail = inputValidation(/^[^@]+@[^@.]+\.[a-z]+$/i, emailInput.value);
+    if(!validEmail) {
+        if(emailInput.value === '') {
+            emailInput.previousElementSibling.textContent = `Email cannot be empty`;
+            emailInput.classList.add("error");
+        } 
+    } else {
+        emailInput.previousElementSibling.textContent = ``;
+        emailInput.classList.remove("error");
+    }
+});
 
 // Job Role Event Listener
 jobTitleSelect.addEventListener("change", (e) => {
@@ -128,5 +197,61 @@ paymentSelect.addEventListener("change", (e) => {
         bitCoinDiv.style.display = "none";
     }
 });
+
+submitButton.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    const nameValid = inputValidation(/^[a-zA-Z]+$/, nameInput.value);
+    const emailValid = inputValidation(/^[^@]+@[^@.]+\.[a-z]+$/i, emailInput.value);
+    const activitiesValid = activitiesIsValid(activitiesFieldSet.querySelectorAll("input[type='checkbox']"));
+
+    if(!nameValid) {
+        nameInput.previousElementSibling.textContent = `${nameInput.value || ''} Not a valid input`;
+        nameInput.classList.add("error");
+    } else {
+        nameInput.previousElementSibling.textContent = ``;
+        nameInput.classList.remove("error");
+    }
+
+    if(!activitiesValid) {
+        activitiesFirstElementChild.previousElementSibling.textContent = `Please choose atleast one activity`;
+    } else {
+        activitiesFirstElementChild.previousElementSibling.textContent = ``;
+    }
+
+    if(paymentSelect.value === 'credit card') {
+        const creditCardValid = inputValidation(/^[\d]{13,16}$/, creditCardInput.value);
+        const zipCodeValid = inputValidation(/^[\d]{5}$/, zipCodeInput.value);
+        const cvvValid = inputValidation(/^[\d]{3}$/, cvvInput.value);
+
+        if(!creditCardValid) {
+            creditCardInput.previousElementSibling.textContent = `${creditCardInput.value || ''} Not a valid input`;
+            creditCardInput.classList.add("error");
+        } else {
+            creditCardInput.previousElementSibling.textContent = ``;
+            creditCardInput.classList.remove("error");
+        }
+
+        if(!zipCodeValid) {
+            zipCodeInput.previousElementSibling.textContent = `${zipCodeInput.value || ''} Not a valid input`;
+            zipCodeInput.classList.add("error");
+        } else {
+            zipCodeInput.previousElementSibling.textContent = ``;
+            zipCodeInput.classList.remove("error");
+        }
+
+        if(!cvvValid) {
+            cvvInput.previousElementSibling.textContent = `${cvvInput.value || ''} Not a valid input`;
+            cvvInput.classList.add("error");
+        } else {
+            cvvInput.previousElementSibling.textContent = ``;
+            cvvInput.classList.remove("error");
+        }
+
+        if(nameValid && activitiesValid && emailValid && creditCardValid && zipCodeValid && cvvValid) {
+            form.submit();
+        }
+    }
+})
 
 
