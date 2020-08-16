@@ -77,6 +77,22 @@ function inputValidation(regEx, input) {
     return regEx.test(input);
 }
 
+// Email validation
+function emailValidation(validEmail) {
+    if(!validEmail) {
+        if(emailInput.value === '') {
+            emailInput.previousElementSibling.textContent = `Email cannot be empty`;
+            emailInput.classList.add("error");
+        } else {
+            emailInput.previousElementSibling.textContent = `${emailInput.value || ''} Not a valid email address`;
+            emailInput.classList.add("error");
+        }
+    } else {
+        emailInput.previousElementSibling.textContent = ``;
+        emailInput.classList.remove("error");
+    }
+}
+
 // Email validation event listener
 emailInput.addEventListener("input", (e) => {
     const validEmail = inputValidation(/^[^@]+@[^@.]+\.[a-z]+$/i, emailInput.value);
@@ -201,7 +217,7 @@ paymentSelect.addEventListener("change", (e) => {
 submitButton.addEventListener("click", (e) => {
     e.preventDefault();
 
-    const nameValid = inputValidation(/^[a-zA-Z]+$/, nameInput.value);
+    const nameValid = inputValidation(/^[a-zA-Z]+ ?[a-zA-Z]+$/, nameInput.value);
     const emailValid = inputValidation(/^[^@]+@[^@.]+\.[a-z]+$/i, emailInput.value);
     const activitiesValid = activitiesIsValid(activitiesFieldSet.querySelectorAll("input[type='checkbox']"));
 
@@ -212,6 +228,8 @@ submitButton.addEventListener("click", (e) => {
         nameInput.previousElementSibling.textContent = ``;
         nameInput.classList.remove("error");
     }
+
+    emailValidation(emailValid);
 
     if(!activitiesValid) {
         activitiesFirstElementChild.previousElementSibling.textContent = `Please choose atleast one activity`;
@@ -251,6 +269,8 @@ submitButton.addEventListener("click", (e) => {
         if(nameValid && activitiesValid && emailValid && creditCardValid && zipCodeValid && cvvValid) {
             form.submit();
         }
+    } else {
+        form.submit();
     }
 })
 
