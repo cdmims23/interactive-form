@@ -57,7 +57,7 @@
   createErrorMessage(creditCardInput, 'span');
   createErrorMessage(zipCodeInput, 'span');
   createErrorMessage(cvvInput, 'span');
-
+  createErrorMessage(paymentSelect, 'span');
  /**
  * Validation functions
  **/
@@ -194,19 +194,32 @@ activitiesFieldSet.addEventListener("change", (e) => {
 // Payment Even Listener
 paymentSelect.addEventListener("change", (e) => {
     const option = e.target;
+    const errorPayment = document.querySelector('#error-payment');
 
     if (option.value === "credit card") {
         creditCardDiv.style.display = "block";
         payPalDiv.style.display = "none";
         bitCoinDiv.style.display = "none";
+
+        if(errorPayment.textContent !== '') {
+            errorPayment.textContent = '';
+        }
     } else if (option.value === "paypal") {
         payPalDiv.style.display = "block";
         creditCardDiv.style.display = "none";
         bitCoinDiv.style.display = "none";
+
+        if(errorPayment.textContent !== '') {
+            errorPayment.textContent = '';
+        }
     } else if (option.value === "bitcoin") {
         bitCoinDiv.style.display = "block";
         creditCardDiv.style.display = "none";
         payPalDiv.style.display = "none";
+
+        if(errorPayment.textContent !== '') {
+            errorPayment.textContent = '';
+        }
     } else {
         creditCardDiv.style.display = "none";
         payPalDiv.style.display = "none";
@@ -269,6 +282,10 @@ submitButton.addEventListener("click", (e) => {
         if(nameValid && activitiesValid && emailValid && creditCardValid && zipCodeValid && cvvValid) {
             form.submit();
         }
+    } else if(paymentSelect.value === 'select method') {
+        console.log('The else block');
+        paymentSelect.previousElementSibling.textContent = `${paymentSelect.value || ''} Not a valid input`;
+        paymentSelect.classList.add("error");
     } else {
         form.submit();
     }
